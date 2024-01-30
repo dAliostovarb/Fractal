@@ -54,8 +54,10 @@ function choose(id) {
                 labels_.push('');
             }
         }
-        numbers.push([]);
-        labels_.push([]);
+        if (id !== "area") {
+            numbers.push([]);
+            labels_.push([]);
+        }
     }
 
 
