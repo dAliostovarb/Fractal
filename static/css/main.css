@@ -1,0 +1,16 @@
+a {
+    cursor: pointer;
+}
+
+.styleChart{
+    max-width:7rem;
+    width:7rem;
+}
+
+.imgStyle{
+    max-width:7rem;
+    /*width:6rem;*/
+    max-height:7rem;
+    height:4rem;
+    padding:0;
+}

@@ -1,0 +1,120 @@
+{% extends '_Layout.html' %}
+
+{% block Content %}
+    <input type="text" id="userInput">
+    <button onclick="sw()">Submit</button>
+    <canvas id="canvas" width="600" height="600"></canvas>
+    <script>
+        var gg = [
+            0.246477863, 1.049680975, 2.657768081, 5.795000451,
+            13.18391648, 49.41444573, -57.65018668, -21.09426636,
+            -13.03875102, -8.859226936, -5.773245361, -2.957734356,
+            -1.59E-15, 3.450690082, 7.87260731, 14.1747631,
+            24.62875192, 47.46209932, 156.4790781, -164.7148191, -55.37244921,
+            -31.87250248, -20.37622195, -12.5961717, -6.161946576, -6.37E-15
+        ]
+        var FC = 30;
+        var i = 0
+        var j = 0
+        var color = getRandomRGBColor()
+        var numbers = []
+        var labels_ = []
+        var words;
+
+        function sw() {
+            var userTxt = $("#userInput").val();
+            words = userTxt.split(' ');
+            for (var l = 0; l < words.length; l++) {
+                var li = []
+                var lbl = []
+                for (var n = 0; n < words[l].length; n++) {
+                    var word = words[l][n].toLowerCase();
+                    if (dn.hasOwnProperty(word)) {
+                        li.push(dn[word]);
+                        lbl.push("");
+                    }
+                }
+
+                numbers.push(li);
+                labels_.push(lbl);
+            }
+            setInterval(function () {
+                {#var c = document.getElementById('canvas');#}
+                {#var ctx = c.getContext('2d');#}
+                {#ctx.beginPath()#}
+                if (j < numbers.length) {
+                    for (var _ = 0; _ < numbers[j].length; _++) {
+                        var c = document.getElementById('canvas');
+                        var ctx = c.getContext('2d');
+                        ctx.beginPath()
+                        ctx.arc(300 + 90 * Math.cos(i * Math.PI * 2 / numbers[j][_]), 300 + 90 * Math.sin(i * Math.PI * 2 / numbers[j][_]), 100, 0, Math.PI * 5);
+                        ctx.strokeStyle = getRandomRGBColor();
+
+                    }
+                    ctx.stroke();
+                    i += 1
+                    if (i > FC) {
+                        ctx.clearRect(0, 0, c.width, c.height);
+                        j += 1
+                        i = 0
+                        color = getRandomRGBColor()
+                    }
+                } else {
+                    return 0
+                }
+            }, 100)
+        }
+
+        function getRandomRGBColor() {
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+            return `rgb(${r}, ${g}, ${b}, 1)`;
+        }
+
+        {#var li = []#}
+        {#var F_Counter = FC - 1#}
+        {#for (var j = 0; j < gg.length; j++) {#}
+        {#    var l = []#}
+        {#    for (var i = 0; i < FC; i++) {#}
+        {#        var _ = []#}
+        {#        for (var k = 0; k < FC - F_Counter; k++) {#}
+        {#            var cos = 300 + 90 * Math.cos(k * Math.PI * 2 / gg[j])#}
+        {#            var sin = 300 + 90 * Math.sin(k * Math.PI * 2 / gg[j])#}
+        {#            _.push({'cos': cos, 'sin': sin})#}
+        {#        }#}
+        {#        F_Counter--#}
+        {#        l.push([_])#}
+        {#    }#}
+        {#    F_Counter = FC - 1#}
+        {#    li.push(l)#}
+        {#-}#}
+        {#var rmd = 0#}
+        {#setInterval(function () {#}
+        {#    var c = document.getElementById('canvas');#}
+        {#    var ctx = c.getContext('2d');#}
+        {##}
+        {#    for (var o = 0; o < li.length; o++) {#}
+        {#        for (var p = 0; p < li[o].length; p++) {#}
+        {#            for (var q = 0; q < li[o][p].length; q++) {#}
+        {#                ctx.clearRect(0, 0, c.width, c.height);#}
+        {#                for (var r = 0; r < li[o][p][q].length; r++) {#}
+        {#                    if (li[o][p][q][r].cos !== null && li[o][p][q][r].sin !== null) {#}
+        {#                        ctx.beginPath()#}
+        {#                        ctx.arc(li[o][p][q][r].cos, li[o][p][q][r].sin, 100, 0, Math.PI * 5);#}
+        {#                        ctx.strokeStyle = getRandomRGBColor();#}
+        {#                        ctx.stroke();#}
+        {#                    }#}
+        {#                }#}
+        {#                li[o][p][q][rmd].sin = null#}
+        {#                li[o][p][q][rmd].cos = null#}
+        {#                rmd++#}
+        {#            }#}
+        {#            rmd = 0#}
+        {#        }#}
+        {#    }#}
+        {#-}, 70)#}
+
+
+    </script>
+{% endblock %}
