@@ -8,12 +8,12 @@
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
     <link rel="stylesheet" href="static/css/main.css">
-    <title>Document</title>
+    <title>HSL</title>
 </head>
 
 <body>
     <header class="text-center p-3 bg-primary text-light">
-        <h1 id="header">Fractal</h1>
+        <h1 id="header">HSL</h1>
     </header>
 
     <div class="container mt-4">
@@ -58,9 +58,9 @@
                                 <hr>
                                 <label for="customRange2" class="form-label">Fractal Number</label>
                                 <div class="d-flex flex-warp">
-                                    <input type="range" class="form-range" onchange="setFC()" min="2" max="20" value="2"
+                                    <input type="range" class="form-range" onchange="setFC()" min="3" max="20" value="2"
                                         id="inputFC">
-                                    <p class="ps-2 fs-6" id="FC">2</p>
+                                    <p class="ps-2 fs-6" id="FC">3</p>
                                 </div>
                             </div>
                         </div>
@@ -158,6 +158,9 @@
                     </div>
                     <div class="col-md-12">
                         <textarea class="form-control mt-3 me-5" id="userInput" rows="7"></textarea>
+                        <button class="btn btn-primary w-100 mt-3" onclick="saveCanvas()">Save Chart</button>
+                        <label id="open-file-label" for="upload-file">Open File</label>
+                        <input class="mt-3" type="file" onchange="openFile()" id="upload-file">
                     </div>
                 </div>
                 <!-- Select Charts -->
@@ -211,17 +214,38 @@
                                 </div>
                             </div>
                         </a>
-                        <a onclick="choose('fractal')" class="text-decoration-none">
-                            <div class="card" style="width: 6rem; height: 9rem">
-                                <div style="width: 6rem; height:4.5rem">
-                                    <img src="static/img/fractal.png" class=" card-img-top p-2" alt="...">
-                                </div>
 
-                                <div class="card-body text-center" style="width: 6rem; height: 4.5rem">
-                                    <h6 class="card-title fs-6 ">Fractal</h6>
+
+                        <div class="dropdown dropend">
+                            <a type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="cursor: pointer;text-decoration:none;">
+                                <div class="card" style="width: 6rem; height: 9rem">
+                                    <div style="width: 6rem; height:4.5rem">
+                                        <img src="static/img/fractal.png" class=" card-img-top p-2" alt="...">
+                                    </div>
+
+                                    <div class="card-body text-center" style="width: 6rem; height: 4.5rem">
+                                        <h6 class="card-title fs-6 ">Fractal</h6>
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a onclick="un_fillFractall('fractal',false)" class="text-decoration-none dropdown-item">
+                                        Fractal</a>
+                                </li>
+                                <li>
+                                    <a onclick="un_fillFractall('fractal',true)" class="text-decoration-none dropdown-item">
+                                        Fill Fractal
+                                    </a>
+                                </li>
+                                <li>
+                                    <a onclick="choose('spiro')" class="text-decoration-none dropdown-item">
+                                        Spiro
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                         <a onclick="choose('pie')" class="text-decoration-none">
                             <div class="card" style="width: 6rem; height: 9rem">
                                 <div style="width: 6rem; height:4.5rem">
@@ -240,8 +264,9 @@
             <!-- Charts -->
             <div class="col-sm-6 mt-5">
                 <div class="chart-container" id="chart-container"
-                    style="text-align: -webkit-center ; height:80vh; width:100%">
+                    style="text-align: -webkit-center ; height:70vh; width:100%">
                     <canvas id="Chart"></canvas>
+                    <p id="chart_text"></p>
                 </div>
             </div>
             <!-- End Charts -->
@@ -254,7 +279,9 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"
+        integrity="sha512-sG5Q7boJL+ft/weuz6Mmi9XBD+bEzE9AI2FMP4YMFxp3FpTFUQSQQm5K5cSgJCyed6bWs3W8f8h0lp36lHXhQA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>

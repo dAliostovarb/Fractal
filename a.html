@@ -1,9 +1,25 @@
-{% extends '_Layout.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block Content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="static/css/main.css">
+    <title>Document</title>
+</head>
+
+<body>
     <input type="text" id="userInput">
-    <button onclick="sw()">Submit</button>
-    <canvas id="canvas" width="600" height="600"></canvas>
+    <button onclick="radar()">Submit</button>
+    <div class="col-sm-6 mt-5">
+        <div class="chart-container" id="chart-container" style="text-align: -webkit-center ; height:80vh; width:100%">
+            <canvas id="Chart"></canvas>
+            <p id="chart_text"></p>
+        </div>
+    </div>
     <script>
         var gg = [
             0.246477863, 1.049680975, 2.657768081, 5.795000451,
@@ -13,108 +29,119 @@
             24.62875192, 47.46209932, 156.4790781, -164.7148191, -55.37244921,
             -31.87250248, -20.37622195, -12.5961717, -6.161946576, -6.37E-15
         ]
-        var FC = 30;
-        var i = 0
-        var j = 0
-        var color = getRandomRGBColor()
-        var numbers = []
+        var FC = 20;
+        var color = "rgb(157,65,32)"
+        var numberList = []
         var labels_ = []
         var words;
 
-        function sw() {
+        function radar() {
             var userTxt = $("#userInput").val();
-            words = userTxt.split(' ');
-            for (var l = 0; l < words.length; l++) {
-                var li = []
-                var lbl = []
-                for (var n = 0; n < words[l].length; n++) {
-                    var word = words[l][n].toLowerCase();
+            var words = userTxt.split(' ');
+            for (var i = 0; i < words.length; i++) {
+                var _ = []
+                for (var n = 0; n < words[i].length; n++) {
+                    var word = words[i][n].toLowerCase();
                     if (dn.hasOwnProperty(word)) {
-                        li.push(dn[word]);
-                        lbl.push("");
+                        _.push(dn[word]);
                     }
                 }
-
-                numbers.push(li);
-                labels_.push(lbl);
+                numberList.push(_)
             }
-            setInterval(function () {
-                {#var c = document.getElementById('canvas');#}
-                {#var ctx = c.getContext('2d');#}
-                {#ctx.beginPath()#}
-                if (j < numbers.length) {
-                    for (var _ = 0; _ < numbers[j].length; _++) {
-                        var c = document.getElementById('canvas');
-                        var ctx = c.getContext('2d');
-                        ctx.beginPath()
-                        ctx.arc(300 + 90 * Math.cos(i * Math.PI * 2 / numbers[j][_]), 300 + 90 * Math.sin(i * Math.PI * 2 / numbers[j][_]), 100, 0, Math.PI * 5);
-                        ctx.strokeStyle = getRandomRGBColor();
-
-                    }
-                    ctx.stroke();
-                    i += 1
-                    if (i > FC) {
-                        ctx.clearRect(0, 0, c.width, c.height);
-                        j += 1
-                        i = 0
-                        color = getRandomRGBColor()
-                    }
-                } else {
-                    return 0
+            var mx = 0
+            for (var i = 0; i < numberList.length; i++) {
+                if (mx < numberList[i].length) {
+                    mx = numberList[i].length
                 }
-            }, 100)
+            }
+            var _q_ = 0
+            copyNumberList = []
+            for (var i = 0; i < numberList.length; i++) {
+                ____ = numberList[i].length
+                copyNumberList.push([])
+                for (var n = 0; FC >= copyNumberList[i].length; n++) {
+                    var ____n____ = []
+                    for (var j = 0; j < n; j++) {
+                        ____n____.push(undefined);
+                    }
+                    for (var m = 0; m < ____; m++) {
+                        ____n____.push(numberList[i][m]);
+                    }
+                    copyNumberList[i].push(____n____)
+                }
+            }
+
+
+            for (var i = 0; i < copyNumberList.length; i++) {
+                if (mx < copyNumberList[i].length) {
+                    mx = copyNumberList[i].length
+                }
+            }
+            for (var i = 0; i < FC; i++) {
+                labels_.push(i)
+            }
+
+            if (color === null) {
+                color = getRandomRGBColor()
+            }
+            var data = {
+                labels: labels_,
+                datasets: []
+            };
+            for (var i = 0; i < copyNumberList.length; i++) {
+                for(var j = 0; j < copyNumberList[i].length; j++){
+                    data.datasets.push({
+                    data: copyNumberList[i][j],
+                    backgroundColor: color,
+                    borderWidth: 1,
+                    borderColor: "blue",
+                    pointBackgroundColor: 'rgba(0, 0, 0, 0)',
+                    pointBorderColor: 'rgba(0, 0, 0, 0)',
+                    pointLabelFontSize: 0,
+                    pointHitRadius: 0,
+                    fill: false
+                })
+                }
+            }
+
+            var radarChart = $("#Chart").get(0).getContext("2d");
+            Chart.defaults.borderColor = "rgba(0,0,0,0)";
+            Chart.defaults.color = "rgba(0,0,0,0)";
+            var newChart = new Chart(radarChart, {
+                responsive: false,
+                type: 'radar',
+                data: data,
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false,
+                            labels: {
+                                color: "rgba(0,0,0,0)"
+                            }
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
         }
-
-        function getRandomRGBColor() {
-            var r = Math.floor(Math.random() * 256);
-            var g = Math.floor(Math.random() * 256);
-            var b = Math.floor(Math.random() * 256);
-            return `rgb(${r}, ${g}, ${b}, 1)`;
-        }
-
-        {#var li = []#}
-        {#var F_Counter = FC - 1#}
-        {#for (var j = 0; j < gg.length; j++) {#}
-        {#    var l = []#}
-        {#    for (var i = 0; i < FC; i++) {#}
-        {#        var _ = []#}
-        {#        for (var k = 0; k < FC - F_Counter; k++) {#}
-        {#            var cos = 300 + 90 * Math.cos(k * Math.PI * 2 / gg[j])#}
-        {#            var sin = 300 + 90 * Math.sin(k * Math.PI * 2 / gg[j])#}
-        {#            _.push({'cos': cos, 'sin': sin})#}
-        {#        }#}
-        {#        F_Counter--#}
-        {#        l.push([_])#}
-        {#    }#}
-        {#    F_Counter = FC - 1#}
-        {#    li.push(l)#}
-        {#-}#}
-        {#var rmd = 0#}
-        {#setInterval(function () {#}
-        {#    var c = document.getElementById('canvas');#}
-        {#    var ctx = c.getContext('2d');#}
-        {##}
-        {#    for (var o = 0; o < li.length; o++) {#}
-        {#        for (var p = 0; p < li[o].length; p++) {#}
-        {#            for (var q = 0; q < li[o][p].length; q++) {#}
-        {#                ctx.clearRect(0, 0, c.width, c.height);#}
-        {#                for (var r = 0; r < li[o][p][q].length; r++) {#}
-        {#                    if (li[o][p][q][r].cos !== null && li[o][p][q][r].sin !== null) {#}
-        {#                        ctx.beginPath()#}
-        {#                        ctx.arc(li[o][p][q][r].cos, li[o][p][q][r].sin, 100, 0, Math.PI * 5);#}
-        {#                        ctx.strokeStyle = getRandomRGBColor();#}
-        {#                        ctx.stroke();#}
-        {#                    }#}
-        {#                }#}
-        {#                li[o][p][q][rmd].sin = null#}
-        {#                li[o][p][q][rmd].cos = null#}
-        {#                rmd++#}
-        {#            }#}
-        {#            rmd = 0#}
-        {#        }#}
-        {#    }#}
-        {#-}, 70)#}
-
 
     </script>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src='static/js/main.js'></script>
+
+    <script srcs="static/js/main.js"></script>
+</body>
+
+</html>

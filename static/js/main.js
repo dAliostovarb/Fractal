@@ -14,16 +14,21 @@ var ind = 0;
 var Chart__;
 var numbers = []
 var labels_ = []
+var word___ = []
 var words;
-var defaultFC = 2;
+var fill = false;
+var defaultFC = 3;
 var stop = false
 var updateTimer;
+let fileText = null;
 
 function choose(id) {
     numbers = []
     labels_ = []
+    word___ = []
     ind = 0
     var userTxt = $("#userInput").val();
+    $("#chart_text").text("")
     if (id === "fractal") {
         words = userTxt.split(' ');
         for (var i = 0; i < words.length; i++) {
@@ -39,6 +44,7 @@ function choose(id) {
                     }
                 }
             }
+            word___.push(words[i])
             numbers.push(li);
             labels_.push(lbl);
         }
@@ -54,10 +60,7 @@ function choose(id) {
                 labels_.push('');
             }
         }
-        if (id !== "area") {
-            numbers.push([]);
-            labels_.push([]);
-        }
+        word___.push(userTxt)
     }
 
 
@@ -66,8 +69,12 @@ function choose(id) {
         $("#chart-container").append('<canvas  id="Chart"></canvas>')
         if (typeof selectedStyle === "undefined" || selectedStyle === null) {
             currentChart = id
-            chartFunc(id, labels_, numbers, userInputColor)
-            // funnel(labels_, wordList, userInputColor)
+            if (id === "spiro") {
+                spiroFractal()
+            } else {
+                chartFunc(id, labels_, numbers, userInputColor)
+            }
+
         } else {
             if (selectedStyle === "neon") {
                 currentChart = id
@@ -116,7 +123,7 @@ function setFC() {
     var fc = $("#inputFC").val();
     $("#FC").text(fc);
 
-    $("#Chart" + defaultFC).remove()
+    $("#Chart").remove()
     defaultFC = (fc - 1) + 1
     $("#chart-container").append('<canvas  id="Chart"></canvas>')
     if (currentChart !== null) {
@@ -125,6 +132,72 @@ function setFC() {
         ind = 0
         choose(currentChart)
     }
+}
+
+function saveCanvas() {
+    // Get the canvas element
+    const canvas = document.getElementById('Chart');
+
+    // Create a new canvas element with white background
+    const newCanvas = document.createElement('canvas');
+    newCanvas.width = canvas.width;
+    newCanvas.height = canvas.height;
+    const context = newCanvas.getContext('2d');
+    context.fillStyle = 'white';
+    context.fillRect(0, 0, newCanvas.width, newCanvas.height);
+
+    // Draw the original canvas image on the new canvas
+    context.drawImage(canvas, 0, 0);
+
+    // Create an image element
+    const image = new Image();
+
+    // Set the source of the image to the new canvas data URL
+    image.src = newCanvas.toDataURL();
+
+    // Create a link element
+    const link = document.createElement('a');
+
+    // Set the href of the link to the image data URL
+    link.href = image.src;
+
+    // Set the download attribute to specify the file name
+    link.download = 'canvas_image.png';
+
+    // Simulate a click on the link element to trigger the download
+    link.click();
+}
+
+
+function openFile() {
+    var fileInput = $('#upload-file');
+    const file = event.target.files[0];
+
+    var fileReader = new FileReader();
+    fileReader.onload = function (e) {
+        var arrayBuffer = e.target.result;
+
+        var options = {};
+        options.arrayBuffer = arrayBuffer;
+
+        mammoth.extractRawText(options)
+            .then(function (result) {
+                var text = result.value;
+                $("#userInput").text(text);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    };
+
+    fileReader.readAsArrayBuffer(file);
+    fileInput.val(null)
+    fileInput.on('change', openFile);
+}
+
+function un_fillFractall(id,tf){
+    fill = tf;
+    choose(id)
 }
 
 
@@ -320,6 +393,7 @@ function chartFunc(type, labels_, numberList, color) {
         numbers = numberList.filter(function (number) {
             return number >= 0;
         });
+        numbers.push([])
     } else if (type === "area") {
         numbers = numberList.reverse();
     }
@@ -360,6 +434,11 @@ function chartFunc(type, labels_, numberList, color) {
         data.datasets[0].borderColor = (typeof color !== "undefined" && color !== null) ? color : backgroundColors;
     }
 
+    if (type === "fractal" && fill == false) {
+        data.datasets[0].borderColor = (typeof color !== "undefined" && color !== null) ? color : (type === "pie") ? backgroundColors : (ctx) => colorFromRaw(ctx),
+        data.datasets[0].fill = false;
+    }
+
     if (type === "area") {
         data.datasets[0].fill = true;
     }
@@ -367,9 +446,135 @@ function chartFunc(type, labels_, numberList, color) {
     var radarChart = $('#Chart').get(0).getContext("2d");
     Chart.defaults.borderColor = "rgba(0,0,0,0)";
     Chart.defaults.color = "rgba(0,0,0,0)";
+    radarChart.canvas.style.backgroundColor = 'white';
     Chart__ = new Chart(radarChart, {
         responsive: false,
         type: (type === "area") ? "line" : (type === "fractal") ? "radar" : type,
+        data: data,
+        options: {
+            plugins: {
+                legend: {
+                    display: false,
+                    labels: {
+                        color: "rgba(0,0,0,0)"
+                    }
+                },
+                title: {
+                    display: false
+                },
+
+            }
+        }
+    });
+    if (type === "fractal" && words.length > 1) {
+        $("#chart_text").text(word___[ind])
+        stop = false
+        if (updateTimer) {
+            clearTimeout(updateTimer)
+        }
+        updateTimer = setTimeout(updateChart, 2000);
+    }
+}
+
+function updateChart() {
+
+    ind += 1
+    // تغییر مقادیر نمودار
+    Chart__.data.labels = labels_[ind];
+    Chart__.data.datasets[0].data = numbers[ind];
+    $("#chart_text").text(word___[ind])
+
+    // به‌روز‌رسانی نمودار
+    Chart__.update();
+    if (words.length > ind + 1 && stop === false) {
+        updateTimer = setTimeout(updateChart, 2000);
+    } else {
+        ind = -1
+        updateTimer = setTimeout(updateChart, 2000);
+    }
+}
+
+
+function spiroFractal() {
+    var FC = defaultFC;
+    var color = getRandomRGBColor()
+    if (userInputColor){
+        color = userInputColor
+    }
+    var numberList = []
+    var labels_ = []
+    var words;
+    var userTxt = $("#userInput").val();
+    var words = userTxt.split(' ');
+    for (var i = 0; i < words.length; i++) {
+        var _ = []
+        for (var n = 0; n < words[i].length; n++) {
+            var word = words[i][n].toLowerCase();
+            if (dn.hasOwnProperty(word)) {
+                _.push(dn[word]);
+            }
+        }
+        numberList.push(_)
+    }
+    var mx = 0
+    for (var i = 0; i < numberList.length; i++) {
+        if (mx < numberList[i].length) {
+            mx = numberList[i].length
+        }
+    }
+    var _q_ = 0
+    copyNumberList = []
+    for (var i = 0; i < numberList.length; i++) {
+        ____ = numberList[i].length
+        copyNumberList.push([])
+        for (var n = 0; FC >= copyNumberList[i].length; n++) {
+            var ____n____ = []
+            for (var j = 0; j < n; j++) {
+                ____n____.push(undefined);
+            }
+            for (var m = 0; m < ____; m++) {
+                ____n____.push(numberList[i][m]);
+            }
+            copyNumberList[i].push(____n____)
+        }
+    }
+
+
+    for (var i = 0; i < copyNumberList.length; i++) {
+        if (mx < copyNumberList[i].length) {
+            mx = copyNumberList[i].length
+        }
+    }
+    for (var i = 0; i < FC; i++) {
+        labels_.push(i)
+    }
+
+    var data = {
+        labels: labels_,
+        datasets: []
+    };
+    for (var i = 0; i < copyNumberList.length; i++) {
+        for (var j = 0; j < copyNumberList[i].length; j++) {
+            data.datasets.push({
+                data: copyNumberList[i][j],
+                backgroundColor: color,
+                borderWidth: 1,
+                borderColor: color,
+                pointBackgroundColor: 'rgba(0, 0, 0, 0)',
+                pointBorderColor: 'rgba(0, 0, 0, 0)',
+                pointLabelFontSize: 0,
+                pointHitRadius: 0,
+                fill: false
+            })
+        }
+    }
+
+    var radarChart = $("#Chart").get(0).getContext("2d");
+    Chart.defaults.borderColor = "rgba(0,0,0,0)";
+    Chart.defaults.color = "rgba(0,0,0,0)";
+    Chart__ = new Chart(radarChart, {
+        responsive: false,
+        type: 'radar',
         data: data,
         options: {
             plugins: {
@@ -385,32 +590,7 @@ function chartFunc(type, labels_, numberList, color) {
             }
         }
     });
-    if (type === "fractal" && words.length > 1) {
-        stop = false
-        if (updateTimer) {
-            clearTimeout(updateTimer)
-        }
-        updateTimer = setTimeout(updateChart, 2000);
-    }
 }
-
-function updateChart() {
-
-    ind += 1
-    // تغییر مقادیر نمودار
-    Chart__.data.labels = labels_[ind];
-    Chart__.data.datasets[0].data = numbers[ind];
-
-    // به‌روز‌رسانی نمودار
-    Chart__.update();
-    if (words.length > ind + 1 && stop === false) {
-        updateTimer = setTimeout(updateChart, 2000);
-    } else {
-        ind = -1
-        updateTimer = setTimeout(updateChart, 2000);
-    }
-}
-
 
 // function funnel(labels_, numberList, color) {
 //     // const img = new Image();
@@ -432,37 +612,37 @@ function updateChart() {
 //     //             }]
 //     //         }
 //     //     });
-//
+
 //     var numbers = numberList.filter(function (number) {
 //         return number >= 0;
 //     });
 //     // var numbers = numberList
-//
+
 //     const images = [];
 //     const loadPromises = [];
-//
+
 //     for (var i = 0; i < numbers.length; i++) {
 //         var n = Math.floor(Math.random() * 121);
 //         var img = new Image();
 //         img.src = 'static/img/effect/texturizer/' + n + '.png';
 //         images.push(img);
-//
+
 //         var loadPromise = new Promise(function (resolve) {
 //             img.onload = resolve;
 //             img.onerror = resolve;
 //         });
-//
+
 //         loadPromises.push(loadPromise);
 //     }
-//
+
 //     Promise.all(loadPromises).then(function () {
 //         const canvas = document.getElementById("Chart");
 //         const ctx = canvas.getContext("2d");
-//
+
 //         const fillPattern = (index) => {
 //             return ctx.createPattern(images[index], 'repeat');
 //         };
-//
+
 //         const chart = new Chart(ctx, {
 //             type: "treemap",
 //             data: {
@@ -530,7 +710,7 @@ function updateChart() {
 //             pointHitRadius: 0,
 //         }]
 //     };
-//
+
 //     var radarChart = $("#Chart").get(0).getContext("2d");
 //     Chart.defaults.borderColor = "rgba(0,0,0,0)";
 //     Chart.defaults.color = "rgba(0,0,0,0)";

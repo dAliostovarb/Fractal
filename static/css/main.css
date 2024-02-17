@@ -2,15 +2,34 @@ a {
     cursor: pointer;
 }
 
-.styleChart{
-    max-width:7rem;
-    width:7rem;
+.styleChart {
+    max-width: 7rem;
+    width: 7rem;
 }
 
-.imgStyle{
-    max-width:7rem;
+.imgStyle {
+    max-width: 7rem;
     /*width:6rem;*/
-    max-height:7rem;
-    height:4rem;
-    padding:0;
+    max-height: 7rem;
+    height: 4rem;
+    padding: 0;
+}
+
+#open-file-label {
+    cursor: pointer;
+    /* Style as you please, it will become the visible UI component. */
+    background-color: #0d6efd;
+    text-align: center;
+    color: white;
+    border-radius: 0.3rem;
+    width: 100%;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+#upload-file {
+    opacity: 0;
+    position: unset;
+    z-index: -1;
 }
